@@ -1,0 +1,3 @@
+[submodule "submodules/google/transit"]
+	path = submodules/google/transit
+	url = https://github.com/google/transit.git
