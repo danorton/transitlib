@@ -1,0 +1,3 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_email
+1,Capital Metro,http://www.capmetro.org/,America/Chicago,en,512-474-1200,http://www.capmetro.org/fares/
+2,Capital Metro Agency #2,http://www.capmetro.org/,America/New_York,en-US,512-474-1200,http://www.capmetro.org/fares/

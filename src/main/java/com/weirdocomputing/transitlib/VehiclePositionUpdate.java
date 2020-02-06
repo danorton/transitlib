@@ -8,6 +8,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class VehiclePositionUpdate {
     private final URL url;
-    List<VehiclePosition> vehiclePositions;
+    private List<VehiclePosition> vehiclePositions = new ArrayList<>();
 
     VehiclePositionUpdate(final String url) throws MalformedURLException {
         this.url = new URL(url);
@@ -26,17 +27,24 @@ public class VehiclePositionUpdate {
      * fetch latest vehicle positions
      * @throws Exception
      */
-    public void fetch() throws Exception {
+    public List<VehiclePosition> fetch() throws Exception {
         CloseableHttpResponse response;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         String stringBuffer;
         GtfsRealtime.FeedMessage feed = GtfsRealtime.FeedMessage.parseFrom(
                 this.url.openStream());
         for (GtfsRealtime.FeedEntity entity : feed.getEntityList()) {
-            System.out.println(entity.getAllFields());
-            if (entity.hasTripUpdate()) {
-                System.out.println(entity.getTripUpdate());
+            if (entity.hasVehicle()) {
+                VehiclePosition vp = new VehiclePosition(entity.getVehicle());
+                vehiclePositions.add(vp);
+            } else if (entity.hasTripUpdate()) {
+                System.err.printf("*** TripUpdate: %s\n", entity.getTripUpdate());
+                throw new Exception("Unexpecte TripUpdate entity");
+            } else {
+                System.err.printf("*** ???: %s\n", entity.getAllFields());
+                throw new Exception("Unrecognized entity");
             }
         }
+        return vehiclePositions;
     }
 }
