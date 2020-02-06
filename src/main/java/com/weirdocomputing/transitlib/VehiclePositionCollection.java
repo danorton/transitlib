@@ -5,7 +5,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,11 +14,11 @@ import java.util.List;
  *
  * © 2020 Daniel Norton
  */
-public class VehiclePositionUpdate {
+public class VehiclePositionCollection {
     private final URL url;
     private List<VehiclePosition> vehiclePositions = new ArrayList<>();
 
-    VehiclePositionUpdate(final String url) throws MalformedURLException {
+    VehiclePositionCollection(final String url) throws MalformedURLException {
         this.url = new URL(url);
     }
 

@@ -3,15 +3,13 @@ package com.weirdocomputing.transitlib;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.List;
 
 
-class VehiclePositionUpdateTest {
+class VehiclePositionCollectionTest {
 
     @Test
     void fetch() {
-        System.out.println("fetch() junit 5 test");
+        System.err.println("[WARNING] VehiclePosition.fetch(): fetching live, realtime data");
         VehiclePositionUpdate vehiclePositionUpdate = null;
         RouteCollection routeCollection;
         AgencyCollection agencyCollection;
