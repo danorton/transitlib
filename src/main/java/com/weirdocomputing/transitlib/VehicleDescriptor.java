@@ -3,6 +3,7 @@ package com.weirdocomputing.transitlib;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.transit.realtime.GtfsRealtime;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * © 2020 Daniel Norton
@@ -29,4 +30,10 @@ public class VehicleDescriptor  {
         }
         return o;
     }
+
+    @NotNull
+    final String getId() {
+        return this.gglVehicle.getId();
+    }
+
 }

@@ -1,22 +1,31 @@
 package com.weirdocomputing.transitlib;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.transit.realtime.GtfsRealtime;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
 
 /**
  * Real-time vehicle position
  * © 2020 Daniel Norton
  */
 public class VehiclePosition {
+
+    /**
+     * Raw Google VehiclePosition object
+     */
+    @NotNull
     private final GtfsRealtime.VehiclePosition gglVP;
-    VehiclePosition(GtfsRealtime.VehiclePosition gglVP) {
+
+    VehiclePosition(@NotNull GtfsRealtime.VehiclePosition gglVP) {
         this.gglVP = gglVP;
     }
 
     private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
+    @NotNull
     public ObjectNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         if (this.gglVP.hasPosition()) {
@@ -25,9 +34,7 @@ public class VehiclePosition {
         if (this.gglVP.hasTrip()) {
             o.putPOJO("trip", (new TripDescriptor(this.gglVP.getTrip())).toJsonObject());
         }
-        if (this.gglVP.hasVehicle()) {
-            o.putPOJO("vehicle", (new VehicleDescriptor(this.gglVP.getVehicle())).toJsonObject());
-        }
+        o.putPOJO("vehicle", (new VehicleDescriptor(this.gglVP.getVehicle())).toJsonObject());
         if (this.gglVP.hasCongestionLevel()) {
             o.put("congestionLevel", this.gglVP.getCongestionLevel().getNumber());
         }
@@ -43,14 +50,22 @@ public class VehiclePosition {
         if (this.gglVP.hasStopId()) {
             o.put("stopId", this.gglVP.getStopId());
         }
-        if (this.gglVP.hasTimestamp()) {
-            o.put("timestamp", this.gglVP.getTimestamp());
-        }
+        o.put("timestamp", this.gglVP.getTimestamp());
         return o;
     }
 
-    public final Position getPosition() {
+    @NotNull
+    public Position getPosition() {
         return new Position(this.gglVP.getPosition());
     }
 
+    @NotNull
+    public VehicleDescriptor getVehicle() {
+        return new VehicleDescriptor(this.gglVP.getVehicle());
+    }
+
+    @NotNull
+    public Instant getTimestamp() {
+        return Instant.ofEpochSecond(this.gglVP.getTimestamp());
+    }
 }

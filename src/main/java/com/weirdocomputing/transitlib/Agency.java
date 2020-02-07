@@ -17,7 +17,7 @@ public class Agency {
     private String id = null;
     private String name = null;
     private URL url = null;
-    private TimeZone tz = null;
+    private TimeZone timezone = null;
     private Locale locale = null;
     private String phone = null;
     private URL fareUrl = null;
@@ -51,7 +51,7 @@ public class Agency {
                         this.fareUrl = new URL(value);
                         break;
                     case "agency_timezone":
-                        this.tz = TimeZone.getTimeZone(value);
+                        this.timezone = TimeZone.getTimeZone(value);
                         break;
                     case "agency_lang":
                         if (value.equalsIgnoreCase("en")) {
@@ -78,7 +78,7 @@ public class Agency {
             throw new IllegalArgumentException("agency_name cannot be blank");
         } else if (url == null || url.toString().isBlank()) {
             throw new IllegalArgumentException("agency_url cannot be blank");
-        } else if (tz == null) {
+        } else if (timezone == null) {
             throw new IllegalArgumentException("agency_timezone cannot be blank");
         } else if (
                 email != null &&
@@ -105,7 +105,7 @@ public class Agency {
         o.put("id", this.id);
         o.put("name", this.name);
         o.put("url", this.url.toString());
-        o.put("tz", this.tz.toZoneId().toString());
+        o.put("timezone", this.timezone.toZoneId().toString());
         o.put("lang", this.locale.toLanguageTag());
         if (this.phone != null) {
             o.put("phone", this.phone);
@@ -131,8 +131,8 @@ public class Agency {
         return url;
     }
 
-    public TimeZone getTz() {
-        return tz;
+    public TimeZone getTimezone() {
+        return timezone;
     }
 
     public Locale getLocale() {
