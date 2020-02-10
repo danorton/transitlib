@@ -3,6 +3,8 @@ package com.weirdocomputing.transitlib;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,6 +15,8 @@ import java.util.TimeZone;
  *  © 2020 Daniel Norton
  */
 public class Agency {
+    @SuppressWarnings("FieldCanBeLocal")
+    private final Logger logger = LoggerFactory.getLogger(Agency.class);
     private static final boolean VERBOSE_WARNINGS = false;
     private String id = null;
     private String name = null;
@@ -61,7 +65,7 @@ public class Agency {
                         }
                         break;
                     default:
-                        System.err.printf("WARNING: Ignoring unrecognized column: \"%s\"\n", key);
+                        logger.warn("Ignoring unrecognized column: \"{}\"", key);
                 }
             }
         }
@@ -91,10 +95,10 @@ public class Agency {
         // Warn about things that we allow, but are problematic
         if (VERBOSE_WARNINGS) {
             if (!this.url.getProtocol().equals("https")) {
-                System.err.print("WARNING: agency_url should specify an HTTPS protocol\n");
+                logger.warn("agency_url should specify an HTTPS protocol");
             }
             if (this.fareUrl != null && !this.fareUrl.getProtocol().equals("https")) {
-                System.err.print("WARNING: agency_fare_url should specify an HTTPS protocol\n");
+                logger.warn("agency_fare_url should specify an HTTPS protocol");
             }
         }
 

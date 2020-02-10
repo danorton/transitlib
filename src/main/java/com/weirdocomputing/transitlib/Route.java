@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.net.MalformedURLException;
@@ -16,6 +18,7 @@ import java.util.TimeZone;
  * © 2020 Daniel Norton
  */
 public class Route {
+    private final Logger logger = LoggerFactory.getLogger(Route.class);
     private static final boolean VERBOSE_WARNINGS = false;
 
     public final Color DEFAULT_COLOR = Color.WHITE;
@@ -83,7 +86,7 @@ public class Route {
                     case "route_sort_order":
                         this.sortOrder = Integer.parseUnsignedInt(value);
                     default:
-                        System.err.printf("WARNING: Ignoring unrecognized column: \"%s\"\n", key);
+                        logger.warn("Ignoring unrecognized column: \"{}\"", key);
                 }
             }
         }
@@ -109,7 +112,7 @@ public class Route {
         // Warn about things that we allow, but that are problematic
         if (VERBOSE_WARNINGS) {
             if (this.url != null && !this.url.getProtocol().equals("https")) {
-                System.err.print("WARNING: route_url should specify an HTTPS protocol\n");
+                logger.warn("route_url should specify an HTTPS protocol");
             }
         }
     }

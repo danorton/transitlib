@@ -1,8 +1,14 @@
 package com.weirdocomputing.transitlib;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.transit.realtime.GtfsRealtime;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -10,63 +16,69 @@ import java.time.Instant;
 import java.util.HashMap;
 
 /**
- *
+ * A collection of real-time vehicle positions
  * © 2020 Daniel Norton
  */
 public class VehiclePositionCollection {
-    private final URL url;
-    private HashMap<String, VehiclePosition> vehiclePositions = new HashMap<>();
-    private final Duration STALE_AGE = Duration.ofMinutes(1);
+    private final Logger logger = LoggerFactory.getLogger(VehiclePositionCollection.class);
 
-    VehiclePositionCollection(final String url) throws MalformedURLException {
-        this.url = new URL(url);
+    /**
+     * Ignore positions older than this
+     */
+    private final Duration staleAge;
+
+    /**
+     * current vehicle states
+     */
+    private final HashMap<String, VehiclePosition> vehiclePositions = new HashMap<>();
+
+    public VehiclePositionCollection(Duration staleAge) {
+        this.staleAge = staleAge;
     }
 
     /**
      * Update latest vehicle positions
      * @return List of VehiclePosition records that have changed
+     * FIXME - remove stale positions if we don't get an update
      * @throws Exception If unable to fetch or if data fails validation
      */
-    public HashMap<String, VehiclePosition> update() throws Exception {
+    public HashMap<String, VehiclePosition> update(InputStream inputStream) throws Exception {
         HashMap<String, VehiclePosition> newVehiclePositions = new HashMap<>();
-        Instant staleTimestamp = Instant.now().plus(STALE_AGE);
-        // read the positions from the server
-        GtfsRealtime.FeedMessage feed = GtfsRealtime.FeedMessage.parseFrom(this.url.openStream());
+        // read the positions
+        GtfsRealtime.FeedMessage feed = null;
+        feed = GtfsRealtime.FeedMessage.parseFrom(inputStream);
+        if (feed == null) {
+            return newVehiclePositions;
+        }
+        Instant staleTimestamp = Instant.now().minus(staleAge);
+        flushStale(staleTimestamp);
 
+        int positionCount = 0;
         for (GtfsRealtime.FeedEntity entity : feed.getEntityList()) {
             if (entity.hasVehicle()) {
                 VehiclePosition newPosition = new VehiclePosition(entity.getVehicle());
+                positionCount++;
                 Instant timestamp = newPosition.getTimestamp();
                 String vehicleId = newPosition.getVehicle().getId();
                 VehiclePosition oldPosition = this.vehiclePositions.get(vehicleId);
                 // ignore stale records
-                if (timestamp.isBefore(staleTimestamp)) {
+                if (timestamp.isAfter(staleTimestamp)) {
                     // Is the new position more recent than the current position?
                     if (oldPosition == null || (oldPosition.getTimestamp().compareTo(newPosition.getTimestamp()) < 0)) {
-                        if (oldPosition == null) {
-                            System.err.printf("[WARNING] New vehicle %s at time %s\n",
-                                    vehicleId, timestamp.toString());
-                        }
                         // update with the more recent position
                         this.vehiclePositions.put(vehicleId, newPosition);
                         // Add to hash of updated positions
                         newVehiclePositions.put(vehicleId, newPosition);
                     }
-                } else {
-                    // remove stale records
-                    System.err.printf("[WARNING] Removing stale position for vehicle %s at time %s\n",
-                        vehicleId, timestamp.toString());
-                    vehiclePositions.remove(vehicleId);
                 }
             } else if (entity.hasTripUpdate()) {
-                System.err.printf("*** TripUpdate: %s\n", entity.getTripUpdate());
+                logger.error("TripUpdate: {}", entity.getTripUpdate());
                 throw new Exception("Unexpected TripUpdate entity");
             } else {
-                System.err.printf("*** ???: %s\n", entity.getAllFields());
+                logger.error("???: {}", entity.getAllFields());
                 throw new Exception("Unrecognized entity");
             }
         }
-
         return newVehiclePositions;
     }
 
@@ -75,7 +87,25 @@ public class VehiclePositionCollection {
         return vehiclePositions;
     }
 
-    int size() {
+    public int size() {
         return this.getPositions().size();
+    }
+
+    public int flushStale(Instant staleTimestamp) {
+        int flushCount = 0;
+        if (staleTimestamp == null) {
+            staleTimestamp = Instant.now().minus(staleAge);
+        }
+        for (String key: vehiclePositions.keySet()) {
+            if (vehiclePositions.get(key).getTimestamp().isBefore(staleTimestamp)) {
+                vehiclePositions.remove(key);
+                flushCount++;
+            }
+        }
+        return flushCount;
+    }
+
+    public void addPositions(HashMap<String, VehiclePosition> vehiclePositions) {
+        this.vehiclePositions.putAll(vehiclePositions);
     }
 }

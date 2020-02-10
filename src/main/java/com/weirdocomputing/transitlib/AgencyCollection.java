@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
 /**
@@ -21,8 +23,8 @@ public class AgencyCollection {
 
     private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
-    AgencyCollection(final String fileSpec) throws IOException {
-        final CSVReader reader = new CSVReader(new FileReader(fileSpec));
+    AgencyCollection(final InputStream inputStream) throws IOException {
+        final CSVReader reader = new CSVReader(new InputStreamReader(inputStream));
         String[] keys = null;
         for (String[] row : reader) {
             if (keys == null) {
@@ -40,6 +42,7 @@ public class AgencyCollection {
                 }
             }
         }
+        reader.close();
 
         // We require at least one agency
         if (defaultAgency == null) {
