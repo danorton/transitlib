@@ -2,7 +2,6 @@ package com.weirdocomputing.transitlib;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -11,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * © 2020 Daniel Norton

@@ -7,10 +7,7 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
-import java.io.IOException;
 import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AgencyCollectionTest {
     private final Logger logger = LoggerFactory.getLogger(AgencyCollectionTest.class);
