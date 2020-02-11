@@ -1,11 +1,11 @@
 package com.weirdocomputing.transitlib;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.awssdk.services.s3.S3Client;
 
 import org.junit.jupiter.api.Test;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,14 +20,13 @@ class RouteCollectionTest {
 
     @Test
     void toJsonArray() {
-        S3Client s3Client = S3Client.builder().build();
+        AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         InputStream s3AgenciesStream;
         AgencyCollection agencyCollection;
         InputStream s3RoutesStream;
         RouteCollection routeCollection = null;
-        GetObjectRequest.Builder s3BucketBuilder = GetObjectRequest.builder().bucket(S3_BUCKET_NAME);
-        s3AgenciesStream = s3Client.getObject(s3BucketBuilder.key(S3_AGENCIES_KEY).build());
-        s3RoutesStream = s3Client.getObject(s3BucketBuilder.key(S3_ROUTES_KEY).build());
+        s3AgenciesStream = s3Client.getObject(S3_BUCKET_NAME, S3_AGENCIES_KEY).getObjectContent();
+        s3RoutesStream = s3Client.getObject(S3_BUCKET_NAME, S3_ROUTES_KEY).getObjectContent();
         try {
             agencyCollection = new AgencyCollection(s3AgenciesStream);
             routeCollection = new RouteCollection(agencyCollection, s3RoutesStream);

@@ -1,11 +1,11 @@
 package com.weirdocomputing.transitlib;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import software.amazon.awssdk.services.s3.S3Client;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.Test;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,9 +22,6 @@ class VehiclePositionCollectionTest {
     private static final String S3_BUCKET_NAME = String.format("weirdocomputing.transit.%s", PUBLISHER_ID);
     private static final String S3_AGENCIES_KEY = "gtfs/static/agency.txt";
     private static final String S3_ROUTES_KEY = "gtfs/static/routes.txt";
-    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
-
-
 
     private static final String VEHICLE_POSITIONS_URL =
         "https://data.texas.gov/download/eiei-9rpf/application%2Foctet-stream";
@@ -32,7 +29,7 @@ class VehiclePositionCollectionTest {
 
     @Test
     void update() {
-        S3Client s3Client = S3Client.builder().build();
+        AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
         InputStream s3AgenciesStream = null;
         InputStream s3RoutesStream = null;
         HttpURLConnection urlConnection = getHttpURLConnection();
@@ -42,12 +39,10 @@ class VehiclePositionCollectionTest {
         VehiclePositionCollection positionCollection = null;
         RouteCollection routeCollection;
         AgencyCollection agencyCollection;
-        GetObjectRequest.Builder s3BucketBuilder = GetObjectRequest.builder().bucket(S3_BUCKET_NAME);
-        GetObjectRequest objectRequest = GetObjectRequest.builder().bucket(S3_BUCKET_NAME).key(S3_BUCKET_NAME).build();
 
         try {
-            s3AgenciesStream = s3Client.getObject(s3BucketBuilder.key(S3_AGENCIES_KEY).build());
-            s3RoutesStream = s3Client.getObject(s3BucketBuilder.key(S3_ROUTES_KEY).build());
+            s3AgenciesStream = s3Client.getObject(S3_BUCKET_NAME, S3_AGENCIES_KEY).getObjectContent();
+            s3RoutesStream = s3Client.getObject(S3_BUCKET_NAME, S3_ROUTES_KEY).getObjectContent();
             agencyCollection = new AgencyCollection(s3AgenciesStream);
             routeCollection = new RouteCollection(agencyCollection, s3RoutesStream);
             positionCollection = new VehiclePositionCollection(STALE_AGE);
@@ -77,7 +72,7 @@ class VehiclePositionCollectionTest {
 //                    logger.info("VehiclePosition: {}", vp.toJsonObject().toString());
 //                }
                 int totalWait = 0;
-                while (totalWait < 60) {
+                while (totalWait < 30) {
                     // pause
                     int delaySeconds = newPositions.size() == 0 ? 1 : 10;
                     logger.info("{}: Sleeping {} secs",totalWait, delaySeconds);

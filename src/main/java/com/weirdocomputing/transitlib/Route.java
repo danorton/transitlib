@@ -15,6 +15,7 @@ import java.net.URL;
  * © 2020 Daniel Norton
  */
 public class Route {
+    @SuppressWarnings("FieldCanBeLocal")
     private final Logger logger = LoggerFactory.getLogger(Route.class);
     private static final boolean VERBOSE_WARNINGS = false;
 
