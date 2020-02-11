@@ -2,6 +2,7 @@ package com.weirdocomputing.transitlib;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.transit.realtime.GtfsRealtime;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,11 +20,12 @@ public class VehiclePosition {
     @NotNull
     private final GtfsRealtime.VehiclePosition gglVP;
 
+    transient private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
+
     VehiclePosition(@NotNull GtfsRealtime.VehiclePosition gglVP) {
         this.gglVP = gglVP;
     }
 
-    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
     @NotNull
     public ObjectNode toJsonObject() {
@@ -54,6 +56,10 @@ public class VehiclePosition {
         return o;
     }
 
+    public GtfsRealtime.VehiclePosition getGoogleVehiclePosition() {
+        return gglVP;
+    }
+
     @NotNull
     public Position getPosition() {
         return new Position(this.gglVP.getPosition());
@@ -68,4 +74,5 @@ public class VehiclePosition {
     public Instant getTimestamp() {
         return Instant.ofEpochSecond(this.gglVP.getTimestamp());
     }
+
 }

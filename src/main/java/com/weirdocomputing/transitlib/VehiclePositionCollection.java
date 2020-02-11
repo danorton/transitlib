@@ -1,5 +1,7 @@
 package com.weirdocomputing.transitlib;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.transit.realtime.GtfsRealtime;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -16,6 +19,8 @@ import java.util.HashMap;
  */
 public class VehiclePositionCollection {
     private final Logger logger = LoggerFactory.getLogger(VehiclePositionCollection.class);
+
+    transient private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
     /**
      * Ignore positions older than this
@@ -29,6 +34,14 @@ public class VehiclePositionCollection {
 
     public VehiclePositionCollection(Duration staleAge) {
         this.staleAge = staleAge;
+    }
+
+    public static ArrayNode toJsonArray(Collection<VehiclePosition> positions) {
+        ArrayNode ar = jnf.arrayNode();
+        for (VehiclePosition position: positions) {
+            ar.add(position.toJsonObject());
+        }
+        return ar;
     }
 
     /**
@@ -102,5 +115,9 @@ public class VehiclePositionCollection {
 
     public void addPositions(HashMap<String, VehiclePosition> vehiclePositions) {
         this.vehiclePositions.putAll(vehiclePositions);
+    }
+
+    public ArrayNode toJsonArray() {
+        return VehiclePositionCollection.toJsonArray(this.vehiclePositions.values());
     }
 }
