@@ -2,7 +2,7 @@ package com.weirdocomputing.transitlib;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.transit.realtime.GtfsRealtime;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,6 +24,11 @@ public class VehiclePosition {
 
     VehiclePosition(@NotNull GtfsRealtime.VehiclePosition gglVP) {
         this.gglVP = gglVP;
+        try {
+            GtfsRealtime.VehiclePosition.parseFrom(gglVP.toByteArray());
+        } catch (InvalidProtocolBufferException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -73,6 +78,15 @@ public class VehiclePosition {
     @NotNull
     public Instant getTimestamp() {
         return Instant.ofEpochSecond(this.gglVP.getTimestamp());
+    }
+
+    public int getSerializedSize() {
+        return this.gglVP.getSerializedSize();
+    }
+
+    @NotNull
+    public byte[] toByteArray() {
+        return this.gglVP.toByteArray();
     }
 
 }

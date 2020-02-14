@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.transit.realtime.GtfsRealtime;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 /**
  * © 2020 Daniel Norton
  */
-public class VehicleDescriptor  {
+public class VehicleDescriptor {
     private final GtfsRealtime.VehicleDescriptor gglVehicle;
-
-    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
+    private transient static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
     public VehicleDescriptor(GtfsRealtime.VehicleDescriptor vehicle) {
         this.gglVehicle = vehicle;
@@ -26,7 +27,7 @@ public class VehicleDescriptor  {
             o.put("label", this.gglVehicle.getLabel());
         }
         if (this.gglVehicle.hasLicensePlate()) {
-            o.put("plate", this.gglVehicle.getLicensePlate());
+            o.put("licensePlate", this.gglVehicle.getLicensePlate());
         }
         return o;
     }
@@ -35,5 +36,6 @@ public class VehicleDescriptor  {
     final String getId() {
         return this.gglVehicle.getId();
     }
+
 
 }

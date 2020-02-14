@@ -36,24 +36,24 @@ public class Position {
     public ObjectNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         if (this.gglPos.hasLatitude()) {
-            o.put("lat", this.gglPos.getLatitude());
+            o.put("latitude", this.gglPos.getLatitude());
         }
         if (this.gglPos.hasLongitude()) {
-            o.put("lon", this.gglPos.getLongitude());
+            o.put("longitude", this.gglPos.getLongitude());
         }
         if (this.gglPos.hasBearing()) {
-            o.put("brng", this.gglPos.getBearing());
+            o.put("bearing", this.gglPos.getBearing());
         }
         if (this.gglPos.hasOdometer()) {
             double odometer = this.gglPos.getOdometer();
             if (odometer > 0) {
-                o.put("odo", odometer);
+                o.put("odometer", odometer);
             }
         }
         if (this.gglPos.hasSpeed()) {
             float speed = this.gglPos.getSpeed();
             if (speed > 0) {
-                o.put("spd", speed);
+                o.put("speed", speed);
             }
         }
         return o;

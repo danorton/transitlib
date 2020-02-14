@@ -19,25 +19,22 @@ public class TripDescriptor {
     public ObjectNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         if (this.gglTD.hasDirectionId()) {
-            o.put("direction_id", this.gglTD.getDirectionId());
+            o.put("directionId", this.gglTD.getDirectionId());
         }
         if (this.gglTD.hasRouteId()) {
-            o.put("route_id", this.gglTD.getRouteId());
+            o.put("routeId", this.gglTD.getRouteId());
         }
         if (this.gglTD.hasScheduleRelationship()) {
-            o.put("sched_rel", gglTD.getScheduleRelationship().getNumber());
-        }
-        if (this.gglTD.hasDirectionId()) {
-            o.put("dir_id", gglTD.getDirectionId());
+            o.put("scheduleRelationship", gglTD.getScheduleRelationship().getNumber());
         }
         if (this.gglTD.hasStartDate()) {
-            o.put("start_date", gglTD.getStartDate());
+            o.put("startDate", gglTD.getStartDate());
         }
         if (this.gglTD.hasStartTime()) {
-            o.put("start_time", gglTD.hasStartTime());
+            o.put("startTime", gglTD.getStartTime());
         }
         if (this.gglTD.hasTripId()) {
-            o.put("trip_id", gglTD.getTripId());
+            o.put("tripId", gglTD.getTripId());
         }
         return o;
     }

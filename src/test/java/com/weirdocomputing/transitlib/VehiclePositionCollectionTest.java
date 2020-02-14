@@ -44,8 +44,8 @@ class VehiclePositionCollectionTest {
             s3RoutesStream = s3Client.getObject(S3_BUCKET_NAME, S3_ROUTES_KEY).getObjectContent();
             agencyCollection = new AgencyCollection(s3AgenciesStream);
             routeCollection = new RouteCollection(agencyCollection, s3RoutesStream);
-            positionCollection = new VehiclePositionCollection(STALE_AGE);
-        } catch (IOException e) {
+            positionCollection = VehiclePositionCollection.fromInputStream(STALE_AGE, urlConnection.getInputStream());
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -65,11 +65,9 @@ class VehiclePositionCollectionTest {
             if (positionCollection != null) {
                 Map<String,VehiclePosition> newPositions;
                 // fetch initial values
-                newPositions = positionCollection.update(urlConnection.getInputStream());
+                newPositions = positionCollection.getPositions();
                 urlConnection.disconnect();
-//                for (VehiclePosition vp: newPositions.values()) {
-//                    logger.info("VehiclePosition: {}", vp.toJsonObject().toString());
-//                }
+
                 int totalWait = 0;
                 while (totalWait < 30) {
                     // pause
@@ -84,12 +82,13 @@ class VehiclePositionCollectionTest {
                     if (!newEtag.equals(etag)) {
                         newPositions = positionCollection.update(urlConnection.getInputStream());
                         urlConnection.disconnect();
+                        // serialize and deserialize...
+                        logger.info("Size BEFORE serialize/de-serialize: {}", positionCollection.size());
+                        newPositions = positionCollection.update(positionCollection.toFeedMessage(false));
+                        logger.info("Size  AFTER serialize/de-serialize: {}", positionCollection.size());
                         etag = newEtag;
                         logger.info("{} updated of {} total",
                                 newPositions.size(), positionCollection.size());
-//                    for (VehiclePosition vp: newPositions.values()) {
-//                        logger.info("VehiclePosition: {}", vp.toJsonObject().toString());
-//                    }
                     } else {
                         newPositions.clear();
                         logger.warn("ETag unchanged; skipping...");
