@@ -89,4 +89,26 @@ public class VehiclePosition {
         return this.gglVP.toByteArray();
     }
 
+    public boolean isOlderThan(Instant staleAge) {
+        return this.getTimestamp().isBefore(staleAge);
+    }
+
+
+    transient private String hashKey = null;
+    /**
+     * Get a key to uniquely identify a VehiclePosition instance.
+     * The key is constructed from the vehicle ID and the timestamp.
+     * @return unique hash string
+     */
+    @NotNull
+    public String getHashString() {
+        if (this.hashKey == null) {
+            this.hashKey = String.format("%08x",(
+                    Integer.toHexString(this.getVehicle().getId().hashCode())
+                  + Integer.toHexString(String.valueOf(this.getTimestamp().toEpochMilli()).hashCode()))
+                .hashCode());
+        }
+        return this.hashKey;
+    }
+
 }

@@ -33,7 +33,7 @@ public class VehicleDescriptor {
     }
 
     @NotNull
-    final String getId() {
+    public String getId() {
         return this.gglVehicle.getId();
     }
 

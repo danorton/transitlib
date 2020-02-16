@@ -2,6 +2,7 @@ package com.weirdocomputing.transitlib;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.google.transit.realtime.GtfsRealtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Duration;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 class VehiclePositionCollectionTest {
@@ -33,7 +36,7 @@ class VehiclePositionCollectionTest {
         InputStream s3RoutesStream = null;
         HttpURLConnection urlConnection = getHttpURLConnection();
         String etag = urlConnection.getHeaderField("ETag");
-
+        logger.info("first ETag: \"{}\"", etag);
         logger.warn("VehiclePosition.fetch(): fetching live, realtime data");
         VehiclePositionCollection positionCollection = null;
         RouteCollection routeCollection;
@@ -45,6 +48,7 @@ class VehiclePositionCollectionTest {
             agencyCollection = new AgencyCollection(s3AgenciesStream);
             routeCollection = new RouteCollection(agencyCollection, s3RoutesStream);
             positionCollection = VehiclePositionCollection.fromInputStream(STALE_AGE, urlConnection.getInputStream());
+            urlConnection.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -63,13 +67,13 @@ class VehiclePositionCollectionTest {
         }
         try {
             if (positionCollection != null) {
-                Map<String,VehiclePosition> newPositions;
+                Collection<VehiclePosition> newPositions = positionCollection.values();
+                logger.info("newPositions.length {} positionCollection.size() {}",
+                        newPositions.size(), positionCollection.size());
                 // fetch initial values
-                newPositions = positionCollection.getPositions();
-                urlConnection.disconnect();
 
                 int totalWait = 0;
-                while (totalWait < 30) {
+                while (totalWait < 60) {
                     // pause
                     int delaySeconds = newPositions.size() == 0 ? 1 : 10;
                     logger.info("{}: Sleeping {} secs",totalWait, delaySeconds);
@@ -79,18 +83,25 @@ class VehiclePositionCollectionTest {
                     urlConnection = getHttpURLConnection();
                     urlConnection.setRequestProperty("ETag", etag);
                     String newEtag = urlConnection.getHeaderField("ETag");
+                    logger.info("new ETag: \"{}\"", newEtag);
                     if (!newEtag.equals(etag)) {
-                        newPositions = positionCollection.update(urlConnection.getInputStream());
+                        // update the collection from the stream
+                        newPositions = positionCollection.update(urlConnection.getInputStream()).values();
                         urlConnection.disconnect();
-                        // serialize and deserialize...
-                        logger.info("Size BEFORE serialize/de-serialize: {}", positionCollection.size());
-                        newPositions = positionCollection.update(positionCollection.toFeedMessage(false));
-                        logger.info("Size  AFTER serialize/de-serialize: {}", positionCollection.size());
-                        etag = newEtag;
-                        logger.info("{} updated of {} total",
+                        logger.info("newPositions.length {} positionCollection.size() {}",
                                 newPositions.size(), positionCollection.size());
+                        // serialize and deserialize...
+                        GtfsRealtime.FeedMessage feedMessage = positionCollection.toFeedMessage(false);
+                        logger.info("BEFORE serialize/de-serialize: recs {} bytes {}",
+                                positionCollection.size(), feedMessage.getSerializedSize());
+                        positionCollection.update(positionCollection.toFeedMessage(false));
+                        feedMessage = positionCollection.toFeedMessage(false);
+                        logger.info(" AFTER serialize/de-serialize: recs {} bytes {}",
+                                positionCollection.size(), feedMessage.getSerializedSize());
+                        etag = newEtag;
+                        logger.info("{} updated of {} total", newPositions.size(), positionCollection.size());
                     } else {
-                        newPositions.clear();
+                        newPositions = new ArrayList<>();
                         logger.warn("ETag unchanged; skipping...");
                     }
                 }
