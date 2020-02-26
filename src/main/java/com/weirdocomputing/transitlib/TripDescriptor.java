@@ -1,22 +1,31 @@
 package com.weirdocomputing.transitlib;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.transit.realtime.GtfsRealtime;
 
-/**
+/*
  * © 2020 Daniel Norton
  */
-public class TripDescriptor {
-    private final GtfsRealtime.TripDescriptor gglTD;
 
+/**
+ * Wrapper for GTFS realtime trip descriptor to provide JSON serialization
+ */
+public class TripDescriptor {
     private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
+
+    private final GtfsRealtime.TripDescriptor gglTD;
 
     public TripDescriptor(GtfsRealtime.TripDescriptor gglTD) {
         this.gglTD = gglTD;
     }
 
-    public ObjectNode toJsonObject() {
+    /**
+     * Serialize to JSON object
+     * @return JSON object
+     */
+    public JsonNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         if (this.gglTD.hasDirectionId()) {
             o.put("directionId", this.gglTD.getDirectionId());

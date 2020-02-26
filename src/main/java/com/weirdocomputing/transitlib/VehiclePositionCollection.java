@@ -11,11 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * A collection of real-time, timestamped vehicle positions
@@ -117,12 +113,28 @@ public class VehiclePositionCollection {
     }
 
     /**
-     * Build instance from an input stream
-     * @param staleAge age of records that can be purged
-     * @param inputStream Input stream containing GTFS realtime feed
-     * @return instance of VehiclePositionCollection
-     * @throws Exception If unable to fetch or if data fails validation
+     * Remove duplicate and outdated entries
+     * @param latestKeys
+     * @return
      */
+    public boolean removeDuplicates(Set<String> latestKeys) {
+        int originalSize = this.size();
+        Iterator<Map.Entry<String, VehiclePosition>> entryIt = this.positionsHash.entrySet().iterator();
+        while(entryIt.hasNext()) {
+            if(latestKeys.contains(entryIt.next().getValue().getHashString())) {
+                entryIt.remove();
+            }
+        }
+        return this.size() != originalSize;
+    }
+
+        /**
+         * Build instance from an input stream
+         * @param staleAge age of records that can be purged
+         * @param inputStream Input stream containing GTFS realtime feed
+         * @return instance of VehiclePositionCollection
+         * @throws Exception If unable to fetch or if data fails validation
+         */
     public static VehiclePositionCollection fromInputStream(
             Duration staleAge,
             InputStream inputStream) throws Exception {
@@ -241,7 +253,7 @@ public class VehiclePositionCollection {
      * @return JSON node
      */
     @SuppressWarnings("unused")
-    public JsonNode toJsonArray() {
+    public JsonNode toJsonObject() {
         ArrayNode ar = JsonNodeFactory.instance.arrayNode();
         for (VehiclePosition position: this.positionsHash.values()) {
             ar.add(position.toJsonObject());

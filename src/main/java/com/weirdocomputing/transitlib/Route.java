@@ -1,5 +1,6 @@
 package com.weirdocomputing.transitlib;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
@@ -11,16 +12,20 @@ import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
+/*
  * © 2020 Daniel Norton
  */
-public class Route {
-    @SuppressWarnings("FieldCanBeLocal")
-    private final Logger logger = LoggerFactory.getLogger(Route.class);
-    private static final boolean VERBOSE_WARNINGS = false;
 
-    public final Color DEFAULT_COLOR = Color.WHITE;
-    public final Color DEFAULT_TEXT_COLOR = Color.BLACK;
+/**
+ *  Transit Route; corresponds to a line from GTFS static feed routes.txt
+ */
+public class Route {
+    private static final Logger logger = LoggerFactory.getLogger(Route.class);
+    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
+
+    private static final boolean VERBOSE_WARNINGS = false;
+    public static final Color DEFAULT_COLOR = Color.WHITE;
+    public static final Color DEFAULT_TEXT_COLOR = Color.BLACK;
 
     private String id = null;
     private String agencyId = null;
@@ -33,8 +38,13 @@ public class Route {
     public Color textColor = DEFAULT_TEXT_COLOR;
     private int sortOrder = 0;
 
-    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
-
+    /**
+     * Constructor from a row of values from routes.txt
+     * @param agencies agency collection for corresponding agency.txt file
+     * @param keys First row of routes.txt
+     * @param values current row of routes.txt
+     * @throws MalformedURLException if a given URL is not valid
+     */
     public Route(AgencyCollection agencies, String[] keys, String[]  values) throws MalformedURLException {
         for (int i = 0; i < keys.length && i < values.length; i++) {
             String key = keys[i];
@@ -115,7 +125,11 @@ public class Route {
         }
     }
 
-    public ObjectNode toJsonObject() {
+    /**
+     * Serialize to JSON object
+     * @return JSON object
+     */
+    public JsonNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         o.put("id", this.id);
         o.put("agencyId", this.agencyId);
@@ -154,11 +168,13 @@ public class Route {
         return agencyId;
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public String getShortName() {
         return shortName;
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public String getLongName() {
         return longName;
@@ -179,16 +195,19 @@ public class Route {
         return url;
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public Color getColor() {
         return color;
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public Color getTextColor() {
         return textColor;
     }
 
+    @SuppressWarnings("unused")
     public int getSortOrder() {
         return sortOrder;
     }

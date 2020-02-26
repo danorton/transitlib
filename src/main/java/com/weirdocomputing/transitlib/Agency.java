@@ -1,5 +1,6 @@
 package com.weirdocomputing.transitlib;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -11,13 +12,21 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.TimeZone;
 
-/**
+/*
  *  © 2020 Daniel Norton
  */
+/**
+ *  Transit Agency; corresponds to a line from GTFS static feed agency.txt
+ */
 public class Agency {
-    @SuppressWarnings("FieldCanBeLocal")
-    private final Logger logger = LoggerFactory.getLogger(Agency.class);
+    private static final Logger logger = LoggerFactory.getLogger(Agency.class);
+    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
     private static final boolean VERBOSE_WARNINGS = false;
+
+    /**
+     * Fields are defined by Google GTFS static feed file agency.txt
+     */
+
     private String id = null;
     private String name = null;
     private URL url = null;
@@ -27,9 +36,14 @@ public class Agency {
     private URL fareUrl = null;
     private String email = null;
 
-    private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
-    public Agency(String[] keys, String[]  values) throws IllegalStateException, MalformedURLException {
+    /**
+     * Constructor from a row of values from agency.txt
+     * @param keys First row of agency.txt
+     * @param values current row of agency.txt
+     * @throws MalformedURLException if a given URL is not valid
+     */
+    public Agency(String[] keys, String[]  values) throws MalformedURLException {
         for (int i = 0; i < keys.length && i < values.length; i++) {
             String key = keys[i];
             String value = values[i];
@@ -104,7 +118,11 @@ public class Agency {
 
     }
 
-    public ObjectNode toJsonObject() {
+    /**
+     * Serialize to JSON object
+     * @return JSON object
+     */
+    public JsonNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         o.put("id", this.id);
         o.put("name", this.name);
@@ -127,6 +145,7 @@ public class Agency {
         return id;
     }
 
+    @SuppressWarnings("unused")
     public String getName() {
         return name;
     }
@@ -135,22 +154,27 @@ public class Agency {
         return url;
     }
 
+    @SuppressWarnings("unused")
     public TimeZone getTimezone() {
         return timezone;
     }
 
+    @SuppressWarnings("unused")
     public Locale getLocale() {
         return locale;
     }
 
+    @SuppressWarnings("unused")
     public String getPhone() {
         return phone;
     }
 
+    @SuppressWarnings("unused")
     public URL getFareUrl() {
         return fareUrl;
     }
 
+    @SuppressWarnings("unused")
     public String getEmail() {
         return email;
     }

@@ -1,11 +1,12 @@
 package com.weirdocomputing.transitlib;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.transit.realtime.GtfsRealtime;
 
 /**
- * A geo position
+ * Wrapper for GTFS realtime Position object to provide JSON serialization
  * © 2020 Daniel Norton
  */
 public class Position {
@@ -18,22 +19,10 @@ public class Position {
     }
 
     /**
-     * @return JSON string
+     * Serialize to JSON object
+     * @return JSON object
      */
-    public String toJson() {
-        return toJson(false);
-    }
-
-
-    /**
-     * @param makePretty Include indentation an newlines, else all on a single line
-     * @return
-     */
-    public String toJson(boolean makePretty) {
-        return this.toJsonObject().toString();
-    }
-
-    public ObjectNode toJsonObject() {
+    public JsonNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         if (this.gglPos.hasLatitude()) {
             o.put("latitude", this.gglPos.getLatitude());
