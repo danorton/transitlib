@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.transit.realtime.GtfsRealtime;
 
+/*
+ * © 2020 Daniel Norton
+ */
+
 /**
  * Wrapper for GTFS realtime Position object to provide JSON serialization
- * © 2020 Daniel Norton
  */
 public class Position {
     private final GtfsRealtime.Position gglPos;

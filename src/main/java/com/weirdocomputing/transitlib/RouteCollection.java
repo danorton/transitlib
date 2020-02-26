@@ -11,8 +11,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-/**
+/*
  * © 2020 Daniel Norton
+ */
+
+/**
+ * Collection of Route objects; corresponds to GTFS static feed routes.txt
  */
 public class RouteCollection {
     @NotNull

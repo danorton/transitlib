@@ -11,11 +11,18 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Collection;
+import java.util.List;
+
+/*
+ * © 2020 Daniel Norton
+ */
 
 /**
  * A collection of real-time, timestamped vehicle positions
- * © 2020 Daniel Norton
  */
 public class VehiclePositionCollection {
     private transient static final Logger logger = LoggerFactory.getLogger(VehiclePositionCollection.class);
@@ -44,7 +51,7 @@ public class VehiclePositionCollection {
     private VehiclePositionCollection() {
         //noinspection ConstantConditions
         this.staleAge = null;
-        this.positionsHash = null;
+        this.positionsHash = new HashMap<>();
     }
 
     /**
@@ -114,17 +121,14 @@ public class VehiclePositionCollection {
 
     /**
      * Remove duplicate and outdated entries
-     * @param latestKeys
-     * @return
+     * @param latestKeys keys of vehicle positions that are current
+     * @return if this object changed
      */
+    @SuppressWarnings("unused")
     public boolean removeDuplicates(Set<String> latestKeys) {
         int originalSize = this.size();
-        Iterator<Map.Entry<String, VehiclePosition>> entryIt = this.positionsHash.entrySet().iterator();
-        while(entryIt.hasNext()) {
-            if(latestKeys.contains(entryIt.next().getValue().getHashString())) {
-                entryIt.remove();
-            }
-        }
+        this.positionsHash.entrySet().removeIf(stringVehiclePositionEntry ->
+                latestKeys.contains(stringVehiclePositionEntry.getValue().getHashString()));
         return this.size() != originalSize;
     }
 
@@ -219,10 +223,12 @@ public class VehiclePositionCollection {
         this.positionsHash.clear();
     }
 
+    @SuppressWarnings("unused")
     public String[] keys() {
         return positionsHash.keySet().toArray(new String[0]);
     }
 
+    @SuppressWarnings("unused")
     public Set<String> keySet() {
         return positionsHash.keySet();
     }
@@ -235,7 +241,7 @@ public class VehiclePositionCollection {
      * Purge stale records from the collection
      * @return the number of records purged
      */
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "unused"})
     public int purgeStale() {
         Instant staleTime = Instant.now().minus(staleAge);
         int purgeCount = 0;

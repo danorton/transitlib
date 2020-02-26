@@ -1,5 +1,6 @@
 package com.weirdocomputing.transitlib;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -8,11 +9,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 
-/**
- * Real-time vehicle position
+/*
  * © 2020 Daniel Norton
  */
+
+/**
+ * Wrapper for GTFS realtime vehicle position to provide JSON serialization
+ */
 public class VehiclePosition {
+    transient private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
     /**
      * Raw Google VehiclePosition object
@@ -20,7 +25,6 @@ public class VehiclePosition {
     @NotNull
     private final GtfsRealtime.VehiclePosition gglVP;
 
-    transient private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
 
     VehiclePosition(@NotNull GtfsRealtime.VehiclePosition gglVP) {
         this.gglVP = gglVP;
@@ -32,8 +36,12 @@ public class VehiclePosition {
     }
 
 
+    /**
+     * Serialize to JSON object
+     * @return JSON object
+     */
     @NotNull
-    public ObjectNode toJsonObject() {
+    public JsonNode toJsonObject() {
         ObjectNode o = jnf.objectNode();
         if (this.gglVP.hasPosition()) {
             o.putPOJO("position", this.getPosition().toJsonObject());
